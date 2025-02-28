@@ -1,5 +1,6 @@
 <?php
  $err=False;
+ $showerror=false;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
@@ -8,19 +9,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
     $cpassword = $_POST['cpassword'];
-    
+    $sqlexists="SELECT * FROM `users` WHERE `user`='$username'";
+    $result=mysqli_query($conn,$sqlexists);
+    $numrows=mysqli_num_rows($result);
 
-    //checks both the password and for the availability of the same data in database
-    $exist=false;
-    if(($password==$cpassword) && $exist==false){
+    if($numrows>0){
+      $showerror="username already exists";
+
+    }
+    else{
+      if($password==$cpassword) {
         $sql="INSERT INTO `users` (`slno`, `user`, `password`, `date`) VALUES (NULL, '$username', '$password', current_timestamp())";
         $data=mysqli_query($conn,$sql);
         if($data){
             $err=true;
-        }
-       
-
+        } 
     }
+else{
+   $showerror="password does not match";
+    }
+  }
+   
+    
+
+    //checks both the password and for the availability of the same data in database
+    
+    
     
 }
   
@@ -41,6 +55,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     ?>
     <h1 class="text-center">signup here</h1>
     <?php
+    
+    
     if($err){ 
         echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
   <strong>Success!</strong> Account created.
